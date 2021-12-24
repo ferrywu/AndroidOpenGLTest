@@ -7,7 +7,7 @@ import android.view.MotionEvent;
 
 public class MyGLSurfaceView extends GLSurfaceView {
     private final MyGLRenderer glRenderer;
-    private final int shapeType = ShapeType.POLYGON_CIRCLE;
+    private final int shapeType = ShapeType.CUBE;
     private final int shapeOperation = ShapeOperation.MANUAL_ROTATE;
 
     public MyGLSurfaceView(Context context) {
@@ -19,7 +19,7 @@ public class MyGLSurfaceView extends GLSurfaceView {
             setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
     }
 
-    private final float TOUCH_SCALE_FACTOR = 180.0f / 320;
+    private final float TOUCH_SCALE_FACTOR = 0.6f;
     private float previousX;
     private float previousY;
 
@@ -36,17 +36,33 @@ public class MyGLSurfaceView extends GLSurfaceView {
 
                 switch (shapeOperation) {
                     case ShapeOperation.MANUAL_ROTATE:
-                        if (y > getHeight() / 2.0f) {
-                            dx = dx * -1;
+                        float[] angle = glRenderer.getAngle();
+                        if (ShapeType.is2DShape(shapeType)) {
+                            if (y < getHeight() / 2.0f) {
+                                dx = dx * -1;
+                            }
+                            if (x > getWidth() / 2.0f) {
+                                dy = dy * -1;
+                            }
+                            angle[2] += (dx + dy) * TOUCH_SCALE_FACTOR;
+                        } else {
+                            angle[0] += dy * TOUCH_SCALE_FACTOR;
+                            angle[1] += dx * TOUCH_SCALE_FACTOR;
                         }
-                        if (x < getWidth() / 2.0f) {
-                            dy = dy * -1;
-                        }
-                        glRenderer.setAngle(glRenderer.getAngle() + ((dx + dy) * TOUCH_SCALE_FACTOR));
+                        glRenderer.setAngle(angle);
                         break;
 
                     case ShapeOperation.MANUAL_SCALE:
-                        glRenderer.setScale(dx/getWidth()*2, dy/getHeight());
+                        float[] scale = glRenderer.getScale();
+                        int width = getWidth();
+                        int height = getHeight();
+                        scale[0] += dx / width * (width > height ? width/height : 1);
+                        scale[1] += dy / getHeight() * (height > width ? height/width : 1);
+                        if (ShapeType.is2DShape(shapeType))
+                            scale[2] = 0.0f;
+                        else
+                            scale[2] += (dx + dy) / (getWidth() + getHeight());
+                        glRenderer.setScale(scale);
                         break;
                 }
 

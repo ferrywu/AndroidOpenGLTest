@@ -15,31 +15,31 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     private Square square;
     private Polygon polygon;
     private Circle circle;
+    private Cube cube;
 
     private final float[] projectionMatrix = new float[16];
     private final float[] viewMatrix = new float[16];
-    private final float[] rotateMatrix = new float[16];
 
-    public float mAngle;
-    public float mScaleX = 1.0f;
-    public float mScaleY = 1.0f;
+    public float[] mAngle = { 0.0f, 0.0f, 0.0f };
+    public float[] mScale = { 1.0f, 1.0f, 1.0f };
 
     public MyGLRenderer(int shapeType, int shapeOperation) {
         this.shapeType = shapeType;
         this.shapeOperation = shapeOperation;
     }
 
-    public float getAngle() {
+    public float[] getAngle() {
         return mAngle;
     }
-
-    public void setAngle(float angle) {
+    public void setAngle(float[] angle) {
         mAngle = angle;
     }
 
-    public void setScale(float dScaleX, float dScaleY) {
-        mScaleX += dScaleX;
-        mScaleY += dScaleY;
+    public float[] getScale() {
+        return mScale;
+    }
+    public void setScale(float[] scale) {
+        mScale = scale;
     }
 
     @Override
@@ -62,6 +62,9 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
                 polygon = new Polygon(6);
                 circle = new Circle();
                 break;
+            case ShapeType.CUBE:
+                cube = new Cube();
+                break;
         }
     }
 
@@ -80,22 +83,31 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
         Matrix.setLookAtM(viewMatrix, 0, 0, 0, 3, 0, 0, 0, 0, 1, 0);
         Matrix.multiplyMM(vMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
+        if (ShapeType.is3DShape(shapeType)) {
+            Matrix.rotateM(vMatrix, 0, 60.0f, 1, 0, 0);
+            Matrix.rotateM(vMatrix, 0, 60.0f, 0, 1, 0);
+        }
 
         switch (shapeOperation) {
             case ShapeOperation.AUTO_ROTATE:
                 long time = System.currentTimeMillis() % 4000L;
                 float angle = 0.09f * ((int) time);
-                Matrix.setRotateM(rotateMatrix, 0, angle, 0, 0, -1);
-                Matrix.multiplyMM(vMatrix, 0, vMatrix, 0, rotateMatrix, 0);
+                if (ShapeType.is2DShape(shapeType)) {
+                    Matrix.rotateM(vMatrix, 0, angle, 0, 0, -1);
+                } else {
+                    Matrix.rotateM(vMatrix, 0, angle, 1, 0, 0);
+                    Matrix.rotateM(vMatrix, 0, angle, 0, 1, 0);
+                }
                 break;
 
             case ShapeOperation.MANUAL_ROTATE:
-                Matrix.setRotateM(rotateMatrix, 0, mAngle, 0, 0, -1);
-                Matrix.multiplyMM(vMatrix, 0, vMatrix, 0, rotateMatrix, 0);
+                Matrix.rotateM(vMatrix, 0, mAngle[0], 1, 0, 0);
+                Matrix.rotateM(vMatrix, 0, mAngle[1], 0, 1, 0);
+                Matrix.rotateM(vMatrix, 0, mAngle[2], 0, 0, 1);
                 break;
 
             case ShapeOperation.MANUAL_SCALE:
-                Matrix.scaleM(vMatrix, 0, mScaleX, mScaleY, 0);
+                Matrix.scaleM(vMatrix, 0, mScale[0], mScale[1], mScale[2]);
                 break;
         }
 
@@ -119,6 +131,9 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
                 Matrix.translateM(circleMatrix, 0, vMatrix, 0, 0.7f, 0, 0);
                 polygon.draw(polygonMatrix);
                 circle.draw(circleMatrix);
+                break;
+            case ShapeType.CUBE:
+                cube.draw(vMatrix);
                 break;
         }
     }
