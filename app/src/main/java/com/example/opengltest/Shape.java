@@ -7,6 +7,7 @@ class ShapeType {
     public static final int CIRCLE = 3;
     public static final int POLYGON_CIRCLE = 4;
     public static final int CUBE = 5;
+    public static final int PYRAMID = 6;
 
     public static boolean is2DShape(int shapeType) {
         switch (shapeType) {
@@ -17,6 +18,7 @@ class ShapeType {
             case ShapeType.POLYGON_CIRCLE:
                 return true;
             case ShapeType.CUBE:
+            case ShapeType.PYRAMID:
                 return false;
             default:
                 return true;
@@ -25,6 +27,17 @@ class ShapeType {
 
     public static boolean is3DShape(int shapeType) {
         return !is2DShape(shapeType);
+    }
+
+    public static float[] getInitalAngle(int shapeType) {
+        switch (shapeType) {
+            case ShapeType.CUBE:
+                return new float[]{ 37.9703f, -205.63934f, 0.0f };
+            case ShapeType.PYRAMID:
+                return new float[]{ 37.55401f, -68.83713f, 0.0f };
+            default:
+                return new float[]{ 0.0f, 0.0f, 0.0f };
+        }
     }
 }
 

@@ -3,6 +3,7 @@ package com.example.opengltest;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
+import android.util.Log;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -16,6 +17,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     private Polygon polygon;
     private Circle circle;
     private Cube cube;
+    private Pyramid pyramid;
 
     private final float[] projectionMatrix = new float[16];
     private final float[] viewMatrix = new float[16];
@@ -65,6 +67,9 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             case ShapeType.CUBE:
                 cube = new Cube();
                 break;
+            case ShapeType.PYRAMID:
+                pyramid = new Pyramid();
+                break;
         }
     }
 
@@ -84,8 +89,11 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         Matrix.setLookAtM(viewMatrix, 0, 0, 0, 3, 0, 0, 0, 0, 1, 0);
         Matrix.multiplyMM(vMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
         if (ShapeType.is3DShape(shapeType)) {
-            Matrix.rotateM(vMatrix, 0, 60.0f, 1, 0, 0);
-            Matrix.rotateM(vMatrix, 0, 60.0f, 0, 1, 0);
+            float[] initialAngle = ShapeType.getInitalAngle(shapeType);
+            Matrix.translateM(vMatrix, 0, 0, 0,-1);
+            Matrix.rotateM(vMatrix, 0, initialAngle[0], 1, 0, 0);
+            Matrix.rotateM(vMatrix, 0, initialAngle[1], 0, 1, 0);
+            Matrix.rotateM(vMatrix, 0, initialAngle[2], 0, 0, 1);
         }
 
         switch (shapeOperation) {
@@ -104,6 +112,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
                 Matrix.rotateM(vMatrix, 0, mAngle[0], 1, 0, 0);
                 Matrix.rotateM(vMatrix, 0, mAngle[1], 0, 1, 0);
                 Matrix.rotateM(vMatrix, 0, mAngle[2], 0, 0, 1);
+                Log.e(this.getClass().getName(), "mAngle = " + mAngle[0] + ", " + mAngle[1] + ", " + mAngle[2]);
                 break;
 
             case ShapeOperation.MANUAL_SCALE:
@@ -134,6 +143,9 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
                 break;
             case ShapeType.CUBE:
                 cube.draw(vMatrix);
+                break;
+            case ShapeType.PYRAMID:
+                pyramid.draw(vMatrix);
                 break;
         }
     }

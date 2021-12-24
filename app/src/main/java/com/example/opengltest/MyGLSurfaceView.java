@@ -7,7 +7,7 @@ import android.view.MotionEvent;
 
 public class MyGLSurfaceView extends GLSurfaceView {
     private final MyGLRenderer glRenderer;
-    private final int shapeType = ShapeType.CUBE;
+    private final int shapeType = ShapeType.PYRAMID;
     private final int shapeOperation = ShapeOperation.MANUAL_ROTATE;
 
     public MyGLSurfaceView(Context context) {
@@ -47,7 +47,9 @@ public class MyGLSurfaceView extends GLSurfaceView {
                             angle[2] += (dx + dy) * TOUCH_SCALE_FACTOR;
                         } else {
                             angle[0] += dy * TOUCH_SCALE_FACTOR;
+                            angle[0] %= 360;
                             angle[1] += dx * TOUCH_SCALE_FACTOR;
+                            angle[1] %= 360;
                         }
                         glRenderer.setAngle(angle);
                         break;
