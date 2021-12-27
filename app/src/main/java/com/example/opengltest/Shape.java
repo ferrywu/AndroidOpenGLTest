@@ -33,7 +33,7 @@ class ShapeType {
         return !is2DShape(shapeType);
     }
 
-    public static float[] getInitalAngle(int shapeType) {
+    public static float[] getInitialAngle(int shapeType) {
         switch (shapeType) {
             case ShapeType.CUBE:
                 return new float[]{ 37.9703f, -205.63934f, 0.0f };

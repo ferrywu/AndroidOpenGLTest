@@ -58,8 +58,8 @@ public class MyGLSurfaceView extends GLSurfaceView {
                         float[] scale = glRenderer.getScale();
                         int width = getWidth();
                         int height = getHeight();
-                        scale[0] += dx / width * (width > height ? width/height : 1);
-                        scale[1] += dy / getHeight() * (height > width ? height/width : 1);
+                        scale[0] += dx / width * (width > height ? (float)width/height : 1);
+                        scale[1] += dy / getHeight() * (height > width ? (float)height/width : 1);
                         if (ShapeType.is2DShape(shapeType))
                             scale[2] = 0.0f;
                         else

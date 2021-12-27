@@ -97,7 +97,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         Matrix.setLookAtM(viewMatrix, 0, 0, 0, 3, 0, 0, 0, 0, 1, 0);
         Matrix.multiplyMM(vMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
         if (ShapeType.is3DShape(shapeType)) {
-            float[] initialAngle = ShapeType.getInitalAngle(shapeType);
+            float[] initialAngle = ShapeType.getInitialAngle(shapeType);
             Matrix.translateM(vMatrix, 0, 0, 0,-1);
             Matrix.rotateM(vMatrix, 0, initialAngle[0], 1, 0, 0);
             Matrix.rotateM(vMatrix, 0, initialAngle[1], 0, 1, 0);
