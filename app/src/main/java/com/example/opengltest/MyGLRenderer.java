@@ -18,6 +18,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     private Circle circle;
     private Cube cube;
     private Pyramid pyramid;
+    private PolygonalPyramid polygonalPyramid;
+    private Cone cone;
 
     private final float[] projectionMatrix = new float[16];
     private final float[] viewMatrix = new float[16];
@@ -70,6 +72,12 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             case ShapeType.PYRAMID:
                 pyramid = new Pyramid();
                 break;
+            case ShapeType.POLYGONAL_PYRAMID:
+                polygonalPyramid = new PolygonalPyramid(6);
+                break;
+            case ShapeType.CONE:
+                cone = new Cone();
+                break;
         }
     }
 
@@ -112,7 +120,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
                 Matrix.rotateM(vMatrix, 0, mAngle[0], 1, 0, 0);
                 Matrix.rotateM(vMatrix, 0, mAngle[1], 0, 1, 0);
                 Matrix.rotateM(vMatrix, 0, mAngle[2], 0, 0, 1);
-                Log.e(this.getClass().getName(), "mAngle = " + mAngle[0] + ", " + mAngle[1] + ", " + mAngle[2]);
+                Log.e(this.getClass().getName(), "mAngle = " + mAngle[0] + "f, " + mAngle[1] + "f, " + mAngle[2] + "f");
                 break;
 
             case ShapeOperation.MANUAL_SCALE:
@@ -146,6 +154,12 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
                 break;
             case ShapeType.PYRAMID:
                 pyramid.draw(vMatrix);
+                break;
+            case ShapeType.POLYGONAL_PYRAMID:
+                polygonalPyramid.draw(vMatrix);
+                break;
+            case ShapeType.CONE:
+                cone.draw(vMatrix);
                 break;
         }
     }
