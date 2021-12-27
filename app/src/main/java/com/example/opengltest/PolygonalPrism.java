@@ -7,7 +7,7 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
-public class PolygonalPyramid {
+public class PolygonalPrism {
     private final int numOfEdges;
     private final float radius = 0.5f;
 
@@ -16,6 +16,7 @@ public class PolygonalPyramid {
 
     private final ShortBuffer drawBuffer1;
     private final ShortBuffer drawBuffer2;
+    private final ShortBuffer drawBuffer3;
 
     private final float[] colorBottomArray = { 1.0f, 0.0f, 0.0f, 1.0f };
     private final float[] colorTopArray = { 0.0f, 1.0f, 0.0f, 1.0f };
@@ -45,28 +46,31 @@ public class PolygonalPyramid {
     private final int mProgram;
 
     private float[] createPosition() {
-        float[] data = new float[(numOfEdges+3)*3];
+        float[] data = new float[(numOfEdges+2)*2*3];
         float angle = 360f / numOfEdges;
         float angleSpan = 0.0f;
+        int indexButton = (numOfEdges + 2) * 3;
 
         data[0] = 0.0f;
         data[1] = 0.0f;
-        data[2] = radius;
+        data[2] = -radius;
+        data[indexButton] = 0.0f;
+        data[indexButton+1] = 0.0f;
+        data[indexButton+2] = radius;
 
-        data[3] = 0.0f;
-        data[4] = 0.0f;
-        data[5] = -radius;
-
-        for (int i = 6; i < data.length; i += 3, angleSpan += angle) {
+        for (int i = 3; i < data.length/2; i += 3, angleSpan += angle) {
             data[i] = (float)(radius*Math.cos(angleSpan*Math.PI/180f));
             data[i+1] = (float)(radius*Math.sin(angleSpan*Math.PI/180f));
             data[i+2] = -radius;
+            data[indexButton+i] = data[i];
+            data[indexButton+i+1] = data[i+1];
+            data[indexButton+i+2] = radius;
         }
 
         return data;
     }
 
-    public PolygonalPyramid(int numOfEdges) {
+    public PolygonalPrism(int numOfEdges) {
         this.numOfEdges = numOfEdges;
 
         vertexArray = createPosition();
@@ -79,17 +83,25 @@ public class PolygonalPyramid {
         ByteBuffer dbb1 = ByteBuffer.allocateDirect((numOfEdges + 2) * 2);
         dbb1.order(ByteOrder.nativeOrder());
         drawBuffer1 = dbb1.asShortBuffer();
-        drawBuffer1.put((short)0);
-        for (int i = 1; i < numOfEdges + 2; i++)
-            drawBuffer1.put((short)(i+1));
+        for (int i = 0; i < numOfEdges+2; i++)
+            drawBuffer1.put((short)i);
         drawBuffer1.position(0);
 
         ByteBuffer dbb2 = ByteBuffer.allocateDirect((numOfEdges + 2) * 2);
         dbb2.order(ByteOrder.nativeOrder());
         drawBuffer2 = dbb2.asShortBuffer();
-        for (int i = 0; i < numOfEdges + 2; i++)
-            drawBuffer2.put((short)(i+1));
+        for (int i = numOfEdges+2; i < (numOfEdges+2)*2; i++)
+            drawBuffer2.put((short)i);
         drawBuffer2.position(0);
+
+        ByteBuffer dbb3 = ByteBuffer.allocateDirect((numOfEdges + 1) * 2 * 2);
+        dbb3.order(ByteOrder.nativeOrder());
+        drawBuffer3 = dbb3.asShortBuffer();
+        for (int i = 1; i < numOfEdges+2; i++) {
+            drawBuffer3.put((short)i);
+            drawBuffer3.put((short)(i+numOfEdges+2));
+        }
+        drawBuffer3.position(0);
 
         int vertexShader = MyGLRenderer.loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
         int fragmentShader = MyGLRenderer.loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
@@ -116,6 +128,7 @@ public class PolygonalPyramid {
 
         GLES20.glDrawElements(GLES20.GL_TRIANGLE_FAN, numOfEdges+2, GLES20.GL_UNSIGNED_SHORT, drawBuffer1);
         GLES20.glDrawElements(GLES20.GL_TRIANGLE_FAN, numOfEdges+2, GLES20.GL_UNSIGNED_SHORT, drawBuffer2);
+        GLES20.glDrawElements(GLES20.GL_TRIANGLE_STRIP, (numOfEdges+1)*2, GLES20.GL_UNSIGNED_SHORT, drawBuffer3);
 
         GLES20.glDisableVertexAttribArray(positionHandle);
     }

@@ -20,6 +20,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     private Pyramid pyramid;
     private PolygonalPyramid polygonalPyramid;
     private Cone cone;
+    private PolygonalPrism polygonalPrism;
+    private Cylinder cylinder;
 
     private final float[] projectionMatrix = new float[16];
     private final float[] viewMatrix = new float[16];
@@ -48,6 +50,9 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onSurfaceCreated(GL10 gl10, EGLConfig eglConfig) {
+        if (ShapeType.is3DShape(shapeType)) {
+            GLES20.glEnable(GLES20.GL_DEPTH_TEST);
+        }
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         switch (shapeType) {
             case ShapeType.TRIANGLE:
@@ -78,6 +83,12 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             case ShapeType.CONE:
                 cone = new Cone();
                 break;
+            case ShapeType.POLYGONAL_PRISM:
+                polygonalPrism = new PolygonalPrism(6);
+                break;
+            case ShapeType.CYLINDER:
+                cylinder = new Cylinder();
+                break;
         }
     }
 
@@ -90,6 +101,9 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onDrawFrame(GL10 gl10) {
+        if (ShapeType.is3DShape(shapeType)) {
+            GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT);
+        }
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
 
         float[] vMatrix = new float[16];
@@ -160,6 +174,12 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
                 break;
             case ShapeType.CONE:
                 cone.draw(vMatrix);
+                break;
+            case ShapeType.POLYGONAL_PRISM:
+                polygonalPrism.draw(vMatrix);
+                break;
+            case ShapeType.CYLINDER:
+                cylinder.draw(vMatrix);
                 break;
         }
     }

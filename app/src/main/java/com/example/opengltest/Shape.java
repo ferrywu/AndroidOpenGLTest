@@ -10,6 +10,8 @@ class ShapeType {
     public static final int PYRAMID = 6;
     public static final int POLYGONAL_PYRAMID = 7;
     public static final int CONE = 8;
+    public static final int POLYGONAL_PRISM = 9;
+    public static final int CYLINDER = 10;
 
     public static boolean is2DShape(int shapeType) {
         switch (shapeType) {
@@ -23,6 +25,8 @@ class ShapeType {
             case ShapeType.PYRAMID:
             case ShapeType.POLYGONAL_PYRAMID:
             case ShapeType.CONE:
+            case ShapeType.POLYGONAL_PRISM:
+            case ShapeType.CYLINDER:
                 return false;
             default:
                 return true;
@@ -42,6 +46,9 @@ class ShapeType {
             case ShapeType.POLYGONAL_PYRAMID:
             case ShapeType.CONE:
                 return new float[]{ 54.71598f, -143.12686f, 0.0f };
+            case ShapeType.POLYGONAL_PRISM:
+            case ShapeType.CYLINDER:
+                return new float[]{ 55.365818f, -35.413776f, 0.0f };
             default:
                 return new float[]{ 0.0f, 0.0f, 0.0f };
         }
