@@ -22,6 +22,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     private Cone cone;
     private PolygonalPrism polygonalPrism;
     private Cylinder cylinder;
+    private Sphere sphere;
 
     private final float[] projectionMatrix = new float[16];
     private final float[] viewMatrix = new float[16];
@@ -88,6 +89,9 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
                 break;
             case ShapeType.CYLINDER:
                 cylinder = new Cylinder();
+                break;
+            case ShapeType.SPHERE:
+                sphere = new Sphere();
                 break;
         }
     }
@@ -180,6 +184,9 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
                 break;
             case ShapeType.CYLINDER:
                 cylinder.draw(vMatrix);
+                break;
+            case ShapeType.SPHERE:
+                sphere.draw(vMatrix);
                 break;
         }
     }

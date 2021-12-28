@@ -12,6 +12,7 @@ class ShapeType {
     public static final int CONE = 8;
     public static final int POLYGONAL_PRISM = 9;
     public static final int CYLINDER = 10;
+    public static final int SPHERE = 11;
 
     public static boolean is2DShape(int shapeType) {
         switch (shapeType) {
@@ -27,6 +28,7 @@ class ShapeType {
             case ShapeType.CONE:
             case ShapeType.POLYGONAL_PRISM:
             case ShapeType.CYLINDER:
+            case ShapeType.SPHERE:
                 return false;
             default:
                 return true;

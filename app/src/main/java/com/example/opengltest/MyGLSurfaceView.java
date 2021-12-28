@@ -7,7 +7,7 @@ import android.view.MotionEvent;
 
 public class MyGLSurfaceView extends GLSurfaceView {
     private final MyGLRenderer glRenderer;
-    private final int shapeType = ShapeType.CYLINDER;
+    private final int shapeType = ShapeType.SPHERE;
     private final int shapeOperation = ShapeOperation.MANUAL_ROTATE;
 
     public MyGLSurfaceView(Context context) {
