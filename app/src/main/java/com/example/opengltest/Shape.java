@@ -13,6 +13,7 @@ class ShapeType {
     public static final int POLYGONAL_PRISM = 9;
     public static final int CYLINDER = 10;
     public static final int SPHERE = 11;
+    public static final int SQUARE_TEXTURE = 12;
 
     public static boolean is2DShape(int shapeType) {
         switch (shapeType) {
@@ -21,6 +22,7 @@ class ShapeType {
             case ShapeType.POLYGON:
             case ShapeType.CIRCLE:
             case ShapeType.POLYGON_CIRCLE:
+            case ShapeType.SQUARE_TEXTURE:
                 return true;
             case ShapeType.CUBE:
             case ShapeType.PYRAMID:

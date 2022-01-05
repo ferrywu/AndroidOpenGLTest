@@ -7,13 +7,13 @@ import android.view.MotionEvent;
 
 public class MyGLSurfaceView extends GLSurfaceView {
     private final MyGLRenderer glRenderer;
-    private final int shapeType = ShapeType.SPHERE;
+    private final int shapeType = ShapeType.SQUARE_TEXTURE;
     private final int shapeOperation = ShapeOperation.MANUAL_ROTATE;
 
     public MyGLSurfaceView(Context context) {
         super(context);
         setEGLContextClientVersion(2);
-        glRenderer = new MyGLRenderer(shapeType, shapeOperation);
+        glRenderer = new MyGLRenderer(context, shapeType, shapeOperation);
         setRenderer(glRenderer);
         if (shapeOperation != ShapeOperation.AUTO_ROTATE)
             setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);

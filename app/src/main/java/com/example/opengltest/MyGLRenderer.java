@@ -1,5 +1,8 @@
 package com.example.opengltest;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
@@ -9,6 +12,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 public class MyGLRenderer implements GLSurfaceView.Renderer {
+    private final Context context;
     private final int shapeType;
     private final int shapeOperation;
 
@@ -23,6 +27,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     private PolygonalPrism polygonalPrism;
     private Cylinder cylinder;
     private Sphere sphere;
+    private SquareTexture squareTexture;
+    private Bitmap textureBitmap;
 
     private final float[] projectionMatrix = new float[16];
     private final float[] viewMatrix = new float[16];
@@ -30,7 +36,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     public float[] mAngle = { 0.0f, 0.0f, 0.0f };
     public float[] mScale = { 1.0f, 1.0f, 1.0f };
 
-    public MyGLRenderer(int shapeType, int shapeOperation) {
+    public MyGLRenderer(Context context, int shapeType, int shapeOperation) {
+        this.context = context;
         this.shapeType = shapeType;
         this.shapeOperation = shapeOperation;
     }
@@ -93,14 +100,43 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             case ShapeType.SPHERE:
                 sphere = new Sphere();
                 break;
+            case ShapeType.SQUARE_TEXTURE:
+                textureBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.texture1);
+                squareTexture = new SquareTexture(textureBitmap);
+                break;
         }
     }
 
     @Override
     public void onSurfaceChanged(GL10 gl10, int width, int height) {
         GLES20.glViewport(0, 0, width, height);
-        float ratio = (float) width / height;
-        Matrix.frustumM(projectionMatrix, 0, -ratio, ratio, -1, 1, 3, 7);
+        if (shapeType != ShapeType.SQUARE_TEXTURE) {
+            float ratio = (float) width / height;
+            if (width > height) {
+                Matrix.frustumM(projectionMatrix, 0, -ratio, ratio, -1, 1, 3, 7);
+            } else {
+                Matrix.frustumM(projectionMatrix, 0, -1, 1, -1/ratio, 1/ratio, 3, 7);
+            }
+        } else {
+            int wTexture = textureBitmap.getWidth();
+            int hTexture = textureBitmap.getHeight();
+            float ratioTexture = (float) wTexture / hTexture;
+            float ratio = (float) width / height;
+
+            if (width > height) {
+                if (ratioTexture > ratio) {
+                    Matrix.orthoM(projectionMatrix, 0, -ratio*ratioTexture, ratio*ratioTexture, -1, 1, 3, 7);
+                } else {
+                    Matrix.orthoM(projectionMatrix, 0, -ratio/ratioTexture, ratio/ratioTexture, -1, 1, 3, 7);
+                }
+            } else {
+                if (ratioTexture > ratio) {
+                    Matrix.orthoM(projectionMatrix, 0, -1, 1, -1/(ratio*ratioTexture), 1/(ratio*ratioTexture), 3, 7);
+                } else {
+                    Matrix.orthoM(projectionMatrix, 0, -1, 1, -ratioTexture/ratio, ratioTexture/ratio, 3, 7);
+                }
+            }
+        }
     }
 
     @Override
@@ -187,6 +223,9 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
                 break;
             case ShapeType.SPHERE:
                 sphere.draw(vMatrix);
+                break;
+            case ShapeType.SQUARE_TEXTURE:
+                squareTexture.draw(vMatrix);
                 break;
         }
     }
