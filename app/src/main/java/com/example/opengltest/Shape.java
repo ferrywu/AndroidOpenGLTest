@@ -1,66 +1,112 @@
 package com.example.opengltest;
 
-class ShapeType {
-    public static final int TRIANGLE = 0;
-    public static final int SQUARE = 1;
-    public static final int POLYGON = 2;
-    public static final int CIRCLE = 3;
-    public static final int POLYGON_CIRCLE = 4;
-    public static final int CUBE = 5;
-    public static final int PYRAMID = 6;
-    public static final int POLYGONAL_PYRAMID = 7;
-    public static final int CONE = 8;
-    public static final int POLYGONAL_PRISM = 9;
-    public static final int CYLINDER = 10;
-    public static final int SPHERE = 11;
-    public static final int SQUARE_TEXTURE = 12;
+import android.graphics.Bitmap;
+import android.opengl.GLES20;
 
-    public static boolean is2DShape(int shapeType) {
-        switch (shapeType) {
-            case ShapeType.TRIANGLE:
-            case ShapeType.SQUARE:
-            case ShapeType.POLYGON:
-            case ShapeType.CIRCLE:
-            case ShapeType.POLYGON_CIRCLE:
-            case ShapeType.SQUARE_TEXTURE:
-                return true;
-            case ShapeType.CUBE:
-            case ShapeType.PYRAMID:
-            case ShapeType.POLYGONAL_PYRAMID:
-            case ShapeType.CONE:
-            case ShapeType.POLYGONAL_PRISM:
-            case ShapeType.CYLINDER:
-            case ShapeType.SPHERE:
-                return false;
-            default:
-                return true;
-        }
+abstract class Shape {
+    public abstract void draw(float[] vMatrix);
+
+    public void createTexture(Bitmap bitmap) {}
+
+    public void releaseTexture() {}
+
+    public int loadShader(int type, String shaderCode) {
+        int shader = GLES20.glCreateShader(type);
+        GLES20.glShaderSource(shader, shaderCode);
+        GLES20.glCompileShader(shader);
+        return shader;
     }
 
-    public static boolean is3DShape(int shapeType) {
-        return !is2DShape(shapeType);
+    public boolean is2DShape() {
+        return true;
     }
 
-    public static float[] getInitialAngle(int shapeType) {
-        switch (shapeType) {
-            case ShapeType.CUBE:
-                return new float[]{ 37.9703f, -205.63934f, 0.0f };
-            case ShapeType.PYRAMID:
-                return new float[]{ 37.55401f, -68.83713f, 0.0f };
-            case ShapeType.POLYGONAL_PYRAMID:
-            case ShapeType.CONE:
-                return new float[]{ 54.71598f, -143.12686f, 0.0f };
-            case ShapeType.POLYGONAL_PRISM:
-            case ShapeType.CYLINDER:
-                return new float[]{ 55.365818f, -35.413776f, 0.0f };
-            default:
-                return new float[]{ 0.0f, 0.0f, 0.0f };
-        }
+    public boolean is3DShape() {
+        return !is2DShape();
+    }
+
+    public float[] getInitialAngle() {
+        return new float[]{ 0.0f, 0.0f, 0.0f };
     }
 }
 
-class ShapeOperation {
-    public static final int AUTO_ROTATE = 0;
-    public static final int MANUAL_ROTATE = 1;
-    public static final int MANUAL_SCALE = 2;
+enum ShapeType {
+    TRIANGLE {
+        @Override
+        public Shape createShape() {
+            return new Triangle();
+        }
+    },
+    SQUARE {
+        @Override
+        public Shape createShape() {
+            return new Square();
+        }
+    },
+    POLYGON {
+        @Override
+        public Shape createShape() {
+            return new Polygon(6);
+        }
+    },
+    CIRCLE {
+        @Override
+        public Shape createShape() {
+            return new Circle();
+        }
+    },
+    CUBE {
+        @Override
+        public Shape createShape() {
+            return new Cube();
+        }
+    },
+    PYRAMID {
+        @Override
+        public Shape createShape() {
+            return new Pyramid();
+        }
+    },
+    POLYGONAL_PYRAMID {
+        @Override
+        public Shape createShape() {
+            return new PolygonalPyramid(6);
+        }
+    },
+    CONE {
+        @Override
+        public Shape createShape() {
+            return new Cone();
+        }
+    },
+    POLYGONAL_PRISM {
+        @Override
+        public Shape createShape() {
+            return new PolygonalPrism(6);
+        }
+    },
+    CYLINDER {
+        @Override
+        public Shape createShape() {
+            return new Cylinder();
+        }
+    },
+    SPHERE {
+        @Override
+        public Shape createShape() {
+            return new Sphere();
+        }
+    },
+    SQUARE_TEXTURE {
+        @Override
+        public Shape createShape() {
+            return new SquareTexture();
+        }
+    };
+
+    public abstract Shape createShape();
+}
+
+enum ShapeOperation {
+    AUTO_ROTATE, MANUAL_ROTATE, MANUAL_SCALE
 }

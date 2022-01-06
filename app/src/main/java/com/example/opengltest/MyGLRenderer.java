@@ -1,5 +1,8 @@
 package com.example.opengltest;
 
+import static com.example.opengltest.ShapeType.*;
+import static com.example.opengltest.ShapeOperation.*;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -7,27 +10,15 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.util.Log;
+import android.view.MotionEvent;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 public class MyGLRenderer implements GLSurfaceView.Renderer {
-    private final Context context;
-    private final int shapeType;
-    private final int shapeOperation;
-
-    private Triangle triangle;
-    private Square square;
-    private Polygon polygon;
-    private Circle circle;
-    private Cube cube;
-    private Pyramid pyramid;
-    private PolygonalPyramid polygonalPyramid;
-    private Cone cone;
-    private PolygonalPrism polygonalPrism;
-    private Cylinder cylinder;
-    private Sphere sphere;
-    private SquareTexture squareTexture;
+    private final ShapeType shapeType = SQUARE_TEXTURE;
+    private final ShapeOperation shapeOperation = MANUAL_ROTATE;
+    private Shape shape;
     private Bitmap textureBitmap;
 
     private final float[] projectionMatrix = new float[16];
@@ -36,81 +27,29 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     public float[] mAngle = { 0.0f, 0.0f, 0.0f };
     public float[] mScale = { 1.0f, 1.0f, 1.0f };
 
-    public MyGLRenderer(Context context, int shapeType, int shapeOperation) {
-        this.context = context;
-        this.shapeType = shapeType;
-        this.shapeOperation = shapeOperation;
-    }
+    private final float TOUCH_SCALE_FACTOR = 0.6f;
+    private float previousX;
+    private float previousY;
 
-    public float[] getAngle() {
-        return mAngle;
-    }
-    public void setAngle(float[] angle) {
-        mAngle = angle;
-    }
-
-    public float[] getScale() {
-        return mScale;
-    }
-    public void setScale(float[] scale) {
-        mScale = scale;
+    public MyGLRenderer(Context context) {
+        if (shapeType == SQUARE_TEXTURE) {
+            textureBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.texture1);
+        }
     }
 
     @Override
     public void onSurfaceCreated(GL10 gl10, EGLConfig eglConfig) {
-        if (ShapeType.is3DShape(shapeType)) {
+        shape = shapeType.createShape();
+        if (shape.is3DShape()) {
             GLES20.glEnable(GLES20.GL_DEPTH_TEST);
         }
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        switch (shapeType) {
-            case ShapeType.TRIANGLE:
-                triangle = new Triangle();
-                break;
-            case ShapeType.SQUARE:
-                square = new Square();
-                break;
-            case ShapeType.POLYGON:
-                polygon = new Polygon(6);
-                break;
-            case ShapeType.CIRCLE:
-                circle = new Circle();
-                break;
-            case ShapeType.POLYGON_CIRCLE:
-                polygon = new Polygon(6);
-                circle = new Circle();
-                break;
-            case ShapeType.CUBE:
-                cube = new Cube();
-                break;
-            case ShapeType.PYRAMID:
-                pyramid = new Pyramid();
-                break;
-            case ShapeType.POLYGONAL_PYRAMID:
-                polygonalPyramid = new PolygonalPyramid(6);
-                break;
-            case ShapeType.CONE:
-                cone = new Cone();
-                break;
-            case ShapeType.POLYGONAL_PRISM:
-                polygonalPrism = new PolygonalPrism(6);
-                break;
-            case ShapeType.CYLINDER:
-                cylinder = new Cylinder();
-                break;
-            case ShapeType.SPHERE:
-                sphere = new Sphere();
-                break;
-            case ShapeType.SQUARE_TEXTURE:
-                textureBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.texture1);
-                squareTexture = new SquareTexture(textureBitmap);
-                break;
-        }
     }
 
     @Override
     public void onSurfaceChanged(GL10 gl10, int width, int height) {
         GLES20.glViewport(0, 0, width, height);
-        if (shapeType != ShapeType.SQUARE_TEXTURE) {
+        if (shapeType != SQUARE_TEXTURE) {
             float ratio = (float) width / height;
             if (width > height) {
                 Matrix.frustumM(projectionMatrix, 0, -ratio, ratio, -1, 1, 3, 7);
@@ -141,7 +80,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onDrawFrame(GL10 gl10) {
-        if (ShapeType.is3DShape(shapeType)) {
+        if (shape.is3DShape()) {
             GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT);
         }
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
@@ -150,8 +89,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
         Matrix.setLookAtM(viewMatrix, 0, 0, 0, 3, 0, 0, 0, 0, 1, 0);
         Matrix.multiplyMM(vMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
-        if (ShapeType.is3DShape(shapeType)) {
-            float[] initialAngle = ShapeType.getInitialAngle(shapeType);
+        if (shape.is3DShape()) {
+            float[] initialAngle = shape.getInitialAngle();
             Matrix.translateM(vMatrix, 0, 0, 0,-1);
             Matrix.rotateM(vMatrix, 0, initialAngle[0], 1, 0, 0);
             Matrix.rotateM(vMatrix, 0, initialAngle[1], 0, 1, 0);
@@ -159,10 +98,10 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         }
 
         switch (shapeOperation) {
-            case ShapeOperation.AUTO_ROTATE:
+            case AUTO_ROTATE:
                 long time = System.currentTimeMillis() % 4000L;
                 float angle = 0.09f * ((int) time);
-                if (ShapeType.is2DShape(shapeType)) {
+                if (shape.is2DShape()) {
                     Matrix.rotateM(vMatrix, 0, angle, 0, 0, -1);
                 } else {
                     Matrix.rotateM(vMatrix, 0, angle, 1, 0, 0);
@@ -170,70 +109,75 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
                 }
                 break;
 
-            case ShapeOperation.MANUAL_ROTATE:
+            case MANUAL_ROTATE:
                 Matrix.rotateM(vMatrix, 0, mAngle[0], 1, 0, 0);
                 Matrix.rotateM(vMatrix, 0, mAngle[1], 0, 1, 0);
                 Matrix.rotateM(vMatrix, 0, mAngle[2], 0, 0, 1);
                 Log.e(this.getClass().getName(), "mAngle = " + mAngle[0] + "f, " + mAngle[1] + "f, " + mAngle[2] + "f");
                 break;
 
-            case ShapeOperation.MANUAL_SCALE:
+            case MANUAL_SCALE:
                 Matrix.scaleM(vMatrix, 0, mScale[0], mScale[1], mScale[2]);
                 break;
         }
 
-        switch (shapeType) {
-            case ShapeType.TRIANGLE:
-                triangle.draw(vMatrix);
-                break;
-            case ShapeType.SQUARE:
-                square.draw(vMatrix);
-                break;
-            case ShapeType.POLYGON:
-                polygon.draw(vMatrix);
-                break;
-            case ShapeType.CIRCLE:
-                circle.draw(vMatrix);
-                break;
-            case ShapeType.POLYGON_CIRCLE:
-                float[] polygonMatrix = new float[16];
-                Matrix.translateM(polygonMatrix, 0, vMatrix, 0, -0.7f, 0, 0);
-                float[] circleMatrix = new float[16];
-                Matrix.translateM(circleMatrix, 0, vMatrix, 0, 0.7f, 0, 0);
-                polygon.draw(polygonMatrix);
-                circle.draw(circleMatrix);
-                break;
-            case ShapeType.CUBE:
-                cube.draw(vMatrix);
-                break;
-            case ShapeType.PYRAMID:
-                pyramid.draw(vMatrix);
-                break;
-            case ShapeType.POLYGONAL_PYRAMID:
-                polygonalPyramid.draw(vMatrix);
-                break;
-            case ShapeType.CONE:
-                cone.draw(vMatrix);
-                break;
-            case ShapeType.POLYGONAL_PRISM:
-                polygonalPrism.draw(vMatrix);
-                break;
-            case ShapeType.CYLINDER:
-                cylinder.draw(vMatrix);
-                break;
-            case ShapeType.SPHERE:
-                sphere.draw(vMatrix);
-                break;
-            case ShapeType.SQUARE_TEXTURE:
-                squareTexture.draw(vMatrix);
-                break;
-        }
+        shape.createTexture(textureBitmap);
+        shape.draw(vMatrix);
+        shape.releaseTexture();
     }
 
-    public static int loadShader(int type, String shaderCode) {
-        int shader = GLES20.glCreateShader(type);
-        GLES20.glShaderSource(shader, shaderCode);
-        GLES20.glCompileShader(shader);
-        return shader;
+    public boolean onTouchEvent(MotionEvent event, int width, int height) {
+        boolean shouldRender;
+        float x = event.getX();
+        float y = event.getY();
+
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_MOVE:
+                float dx = x - previousX;
+                float dy = y - previousY;
+
+                switch (shapeOperation) {
+                    case MANUAL_ROTATE:
+                        if (shape.is2DShape()) {
+                            if (y < height / 2.0f) {
+                                dx = dx * -1;
+                            }
+                            if (x > width / 2.0f) {
+                                dy = dy * -1;
+                            }
+                            mAngle[2] += (dx + dy) * TOUCH_SCALE_FACTOR;
+                        } else {
+                            mAngle[0] += dy * TOUCH_SCALE_FACTOR;
+                            mAngle[0] %= 360;
+                            mAngle[1] += dx * TOUCH_SCALE_FACTOR;
+                            mAngle[1] %= 360;
+                        }
+                        break;
+
+                    case MANUAL_SCALE:
+                        mScale[0] += dx / width * (width > height ? (float)width/height : 1);
+                        mScale[1] += dy / height * (height > width ? (float)height/width : 1);
+                        if (shape.is2DShape())
+                            mScale[2] = 0.0f;
+                        else
+                            mScale[2] += (dx + dy) / (width + height);
+                        break;
+                }
+
+                shouldRender = true;
+                break;
+
+            default:
+                shouldRender = false;
+                break;
+        }
+
+        previousX = x;
+        previousY = y;
+        return shouldRender;
+    }
+
+    public boolean renderWhenDirty() {
+        return (shapeOperation != AUTO_ROTATE);
     }
 }

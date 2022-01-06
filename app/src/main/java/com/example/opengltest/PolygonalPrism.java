@@ -7,7 +7,7 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
-public class PolygonalPrism {
+public class PolygonalPrism extends Shape {
     private final int numOfEdges;
     private final float radius = 0.5f;
 
@@ -103,14 +103,15 @@ public class PolygonalPrism {
         }
         drawBuffer3.position(0);
 
-        int vertexShader = MyGLRenderer.loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
-        int fragmentShader = MyGLRenderer.loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
+        int vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
+        int fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
         mProgram = GLES20.glCreateProgram();
         GLES20.glAttachShader(mProgram, vertexShader);
         GLES20.glAttachShader(mProgram, fragmentShader);
         GLES20.glLinkProgram(mProgram);
     }
 
+    @Override
     public void draw(float[] vMatrix) {
         GLES20.glUseProgram(mProgram);
 
@@ -131,5 +132,15 @@ public class PolygonalPrism {
         GLES20.glDrawElements(GLES20.GL_TRIANGLE_STRIP, (numOfEdges+1)*2, GLES20.GL_UNSIGNED_SHORT, drawBuffer3);
 
         GLES20.glDisableVertexAttribArray(positionHandle);
+    }
+
+    @Override
+    public boolean is2DShape() {
+        return false;
+    }
+
+    @Override
+    public float[] getInitialAngle() {
+        return new float[]{ 55.365818f, -35.413776f, 0.0f };
     }
 }

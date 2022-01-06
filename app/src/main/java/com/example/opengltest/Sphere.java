@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
-public class Sphere {
+public class Sphere extends Shape {
     private final float radius = 0.5f;
     private final float latitudeStep = 2.0f;
     private final float longitudeStep = latitudeStep * 2;
@@ -15,7 +15,6 @@ public class Sphere {
     private final float[] vertexArray;
 
     private final String vertexShaderCode =
-            "precision mediump float;" +
             "uniform mat4 vMatrix;" +
             "attribute vec4 vPosition;" +
             "varying vec4 vColor;" +
@@ -67,14 +66,15 @@ public class Sphere {
         vertexBuffer.put(vertexArray);
         vertexBuffer.position(0);
 
-        int vertexShader = MyGLRenderer.loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
-        int fragmentShader = MyGLRenderer.loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
+        int vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
+        int fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
         mProgram = GLES20.glCreateProgram();
         GLES20.glAttachShader(mProgram, vertexShader);
         GLES20.glAttachShader(mProgram, fragmentShader);
         GLES20.glLinkProgram(mProgram);
     }
 
+    @Override
     public void draw(float[] vMatrix) {
         GLES20.glUseProgram(mProgram);
 
@@ -88,5 +88,10 @@ public class Sphere {
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, vertexArray.length/3);
 
         GLES20.glDisableVertexAttribArray(positionHandle);
+    }
+
+    @Override
+    public boolean is2DShape() {
+        return false;
     }
 }
