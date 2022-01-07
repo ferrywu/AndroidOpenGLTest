@@ -9,6 +9,8 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
 public class SquareTexture extends Shape {
+    private final Filter filter = Filter.NONE;
+
     private final FloatBuffer vertexBuffer;
     private final float[] vertexArray = {
             -0.5f, -0.5f, 0.0f,
@@ -33,18 +35,65 @@ public class SquareTexture extends Shape {
             "uniform mat4 vMatrix;" +
             "attribute vec4 vPosition;" +
             "attribute vec2 vTexCoordIn;" +
+            "varying vec4 vPositionOut;" +
             "varying vec2 vTexCoordOut;" +
             "void main() {" +
             "  gl_Position = vMatrix * vPosition;" +
+            "  vPositionOut = gl_Position;" +
             "  vTexCoordOut = vTexCoordIn;" +
             "}";
 
     private final String fragmentShaderCode =
             "precision mediump float;" +
             "uniform sampler2D vTexture;" +
+            "uniform int vChangeType;" +
+            "uniform vec3 vChangeColor;" +
+            "uniform float vAspectRatio;" +
+            "varying vec4 vPositionOut;" +
             "varying vec2 vTexCoordOut;" +
+            "void modifyColor(vec4 color) {" +
+            "  color.r = max(min(color.r, 1.0), 0.0);" +
+            "  color.g = max(min(color.g, 1.0), 0.0);" +
+            "  color.b = max(min(color.b, 1.0), 0.0);" +
+            "  color.a = max(min(color.a, 1.0), 0.0);" +
+            "}" +
             "void main() {" +
-            "  gl_FragColor = texture2D(vTexture, vTexCoordOut);" +
+            "  vec4 color = texture2D(vTexture, vTexCoordOut);" +
+            "  if (vChangeType == 1) {" +
+            "    /* gray */" +
+            "    float c = color.r * vChangeColor.r + color.g * vChangeColor.g + color.b * vChangeColor.b;" +
+            "    gl_FragColor = vec4(c, c, c, color.a);" +
+            "  } else if (vChangeType == 2) {" +
+            "    /* warn, cold */" +
+            "    vec4 deltaColor = color + vec4(vChangeColor, 0.0);" +
+            "    modifyColor(deltaColor);" +
+            "    gl_FragColor = deltaColor;" +
+            "  } else if (vChangeType == 3) {" +
+            "    /* blur */" +
+            "    color += texture2D(vTexture, vec2(vTexCoordOut.x - vChangeColor.r, vTexCoordOut.y - vChangeColor.r));" +
+            "    color += texture2D(vTexture, vec2(vTexCoordOut.x - vChangeColor.r, vTexCoordOut.y + vChangeColor.r));" +
+            "    color += texture2D(vTexture, vec2(vTexCoordOut.x + vChangeColor.r, vTexCoordOut.y - vChangeColor.r));" +
+            "    color += texture2D(vTexture, vec2(vTexCoordOut.x + vChangeColor.r, vTexCoordOut.y + vChangeColor.r));" +
+            "    color += texture2D(vTexture, vec2(vTexCoordOut.x - vChangeColor.g, vTexCoordOut.y - vChangeColor.g));" +
+            "    color += texture2D(vTexture, vec2(vTexCoordOut.x - vChangeColor.g, vTexCoordOut.y + vChangeColor.g));" +
+            "    color += texture2D(vTexture, vec2(vTexCoordOut.x + vChangeColor.g, vTexCoordOut.y - vChangeColor.g));" +
+            "    color += texture2D(vTexture, vec2(vTexCoordOut.x + vChangeColor.g, vTexCoordOut.y + vChangeColor.g));" +
+            "    color += texture2D(vTexture, vec2(vTexCoordOut.x - vChangeColor.b, vTexCoordOut.y - vChangeColor.b));" +
+            "    color += texture2D(vTexture, vec2(vTexCoordOut.x - vChangeColor.b, vTexCoordOut.y + vChangeColor.b));" +
+            "    color += texture2D(vTexture, vec2(vTexCoordOut.x + vChangeColor.b, vTexCoordOut.y - vChangeColor.b));" +
+            "    color += texture2D(vTexture, vec2(vTexCoordOut.x + vChangeColor.b, vTexCoordOut.y + vChangeColor.b));" +
+            "    color /= 13.0;" +
+            "    gl_FragColor = color;" +
+            "  } else if (vChangeType == 4) {" +
+            "    /* magnify */" +
+            "    float dis = distance(vec2(vPositionOut.x, vPositionOut.y / vAspectRatio), vec2(vChangeColor.r, vChangeColor.g));" +
+            "    if (dis < vChangeColor.b) {" +
+            "      color = texture2D(vTexture, vec2(vTexCoordOut.x / 2.0 + 0.25, vTexCoordOut.y / 2.0 + 0.25));" +
+            "    }" +
+            "    gl_FragColor = color;" +
+            "  } else {" +
+            "    gl_FragColor = color;" +
+            "  }" +
             "}";
 
     private final int mProgram;
@@ -88,6 +137,15 @@ public class SquareTexture extends Shape {
 
         int textureHandle = GLES20.glGetUniformLocation(mProgram, "vTexture");
         GLES20.glUniform1i(textureHandle, 0);
+
+        int changeTypeHandle = GLES20.glGetUniformLocation(mProgram, "vChangeType");
+        GLES20.glUniform1i(changeTypeHandle, filter.getType());
+
+        int changeColorHandle = GLES20.glGetUniformLocation(mProgram, "vChangeColor");
+        GLES20.glUniform3fv(changeColorHandle, 1, filter.data(), 0);
+
+        int aspectRatioHandle = GLES20.glGetUniformLocation(mProgram, "vAspectRatio");
+        GLES20.glUniform1f(aspectRatioHandle, mAspectRatio);
 
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6);
 

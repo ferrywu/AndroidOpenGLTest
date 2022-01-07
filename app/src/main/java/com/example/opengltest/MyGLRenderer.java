@@ -49,6 +49,9 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onSurfaceChanged(GL10 gl10, int width, int height) {
         GLES20.glViewport(0, 0, width, height);
+
+        shape.setAspectRatio((float) width / height);
+
         if (shapeType != SQUARE_TEXTURE) {
             float ratio = (float) width / height;
             if (width > height) {
