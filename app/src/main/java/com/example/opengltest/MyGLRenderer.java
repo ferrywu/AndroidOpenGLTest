@@ -16,8 +16,6 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 public class MyGLRenderer implements GLSurfaceView.Renderer {
-    private final ShapeType shapeType = SQUARE_TEXTURE;
-    private final ShapeOperation shapeOperation = MANUAL_ROTATE;
     private Shape shape;
     private Bitmap textureBitmap;
 
@@ -32,14 +30,16 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     private float previousY;
 
     public MyGLRenderer(Context context) {
-        if (shapeType == SQUARE_TEXTURE) {
-            textureBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.texture1);
-        }
+        textureBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.texture1);
     }
 
     @Override
     public void onSurfaceCreated(GL10 gl10, EGLConfig eglConfig) {
-        shape = shapeType.createShape();
+        mAngle[0] = 0.0f; mAngle[1] = 0.0f; mAngle[2] = 0.0f;
+        mScale[0] = 1.0f; mScale[1] = 1.0f; mScale[2] = 1.0f;
+        previousX = 0.0f; previousY = 0.0f;
+
+        shape = Configuration.shapeType.createShape();
         if (shape.is3DShape()) {
             GLES20.glEnable(GLES20.GL_DEPTH_TEST);
         }
@@ -52,7 +52,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
         shape.setAspectRatio((float) width / height);
 
-        if (shapeType != SQUARE_TEXTURE) {
+        if (Configuration.shapeType != SQUARE_TEXTURE) {
             float ratio = (float) width / height;
             if (width > height) {
                 Matrix.frustumM(projectionMatrix, 0, -ratio, ratio, -1, 1, 3, 7);
@@ -100,7 +100,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             Matrix.rotateM(vMatrix, 0, initialAngle[2], 0, 0, 1);
         }
 
-        switch (shapeOperation) {
+        switch (Configuration.shapeOperation) {
             case AUTO_ROTATE:
                 long time = System.currentTimeMillis() % 4000L;
                 float angle = 0.09f * ((int) time);
@@ -139,7 +139,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
                 float dx = x - previousX;
                 float dy = y - previousY;
 
-                switch (shapeOperation) {
+                switch (Configuration.shapeOperation) {
                     case MANUAL_ROTATE:
                         if (shape.is2DShape()) {
                             if (y < height / 2.0f) {
@@ -181,6 +181,6 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     }
 
     public boolean renderWhenDirty() {
-        return (shapeOperation != AUTO_ROTATE);
+        return (Configuration.shapeOperation != AUTO_ROTATE);
     }
 }

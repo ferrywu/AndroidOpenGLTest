@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/shape_type_triangle" android:title="@string/shape_type_triangle" />
+    <item android:id="@+id/shape_type_square" android:title="@string/shape_type_square" />
+    <item android:id="@+id/shape_type_polygon" android:title="@string/shape_type_polygon" />
+    <item android:id="@+id/shape_type_circle" android:title="@string/shape_type_circle" />
+    <item android:id="@+id/shape_type_cube" android:title="@string/shape_type_cube" />
+    <item android:id="@+id/shape_type_pyramid" android:title="@string/shape_type_pyramid" />
+    <item android:id="@+id/shape_type_polygonal_pyramid" android:title="@string/shape_type_polygonal_pyramid" />
+    <item android:id="@+id/shape_type_cone" android:title="@string/shape_type_cone" />
+    <item android:id="@+id/shape_type_polygonal_prism" android:title="@string/shape_type_polygonal_prism" />
+    <item android:id="@+id/shape_type_cylinder" android:title="@string/shape_type_cylinder" />
+    <item android:id="@+id/shape_type_sphere" android:title="@string/shape_type_sphere" />
+    <item android:id="@+id/shape_type_square_texture" android:title="@string/shape_type_square_texture" />
+</menu>

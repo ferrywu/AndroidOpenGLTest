@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/texture_filter_none" android:title="@string/texture_filter_none" />
+    <item android:id="@+id/texture_filter_gray" android:title="@string/texture_filter_gray" />
+    <item android:id="@+id/texture_filter_cold" android:title="@string/texture_filter_cold" />
+    <item android:id="@+id/texture_filter_warn" android:title="@string/texture_filter_warn" />
+    <item android:id="@+id/texture_filter_blur" android:title="@string/texture_filter_blur" />
+    <item android:id="@+id/texture_filter_magnify" android:title="@string/texture_filter_magnify" />
+</menu>

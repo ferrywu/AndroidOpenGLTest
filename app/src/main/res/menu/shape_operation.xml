@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/shape_operation_manual_rotate" android:title="@string/shape_operation_manual_rotate" />
+    <item android:id="@+id/shape_operation_manual_scale" android:title="@string/shape_operation_manual_scale" />
+    <item android:id="@+id/shape_operation_auto_rotate" android:title="@string/shape_operation_auto_rotate" />
+</menu>

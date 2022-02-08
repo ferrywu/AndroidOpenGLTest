@@ -1,3 +1,27 @@
 <resources>
     <string name="app_name">OpenGLTest</string>
+    <string name="shape_type">Shape</string>
+    <string name="shape_operation">Operation</string>
+    <string name="shape_type_triangle">Triangle</string>
+    <string name="shape_type_square">Square</string>
+    <string name="shape_type_polygon">Polygon</string>
+    <string name="shape_type_circle">Circle</string>
+    <string name="shape_type_cube">Cube</string>
+    <string name="shape_type_pyramid">Pyramid</string>
+    <string name="shape_type_polygonal_pyramid">Polygonal Pyramid</string>
+    <string name="shape_type_cone">Cone</string>
+    <string name="shape_type_polygonal_prism">Polygonal Prism</string>
+    <string name="shape_type_cylinder">Cylinder</string>
+    <string name="shape_type_sphere">Sphere</string>
+    <string name="shape_type_square_texture">Square Texture</string>
+    <string name="shape_operation_manual_rotate">Manual Rotate</string>
+    <string name="shape_operation_manual_scale">Manual Scale</string>
+    <string name="shape_operation_auto_rotate">Auto Rotate</string>
+    <string name="texture_filter">Filter</string>
+    <string name="texture_filter_none">None</string>
+    <string name="texture_filter_gray">Gray</string>
+    <string name="texture_filter_cold">Cold</string>
+    <string name="texture_filter_warn">Warn</string>
+    <string name="texture_filter_blur">Blur</string>
+    <string name="texture_filter_magnify">Magnify</string>
 </resources>

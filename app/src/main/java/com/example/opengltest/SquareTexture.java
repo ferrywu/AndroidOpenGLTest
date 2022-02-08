@@ -9,8 +9,6 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
 public class SquareTexture extends Shape {
-    private final Filter filter = Filter.NONE;
-
     private final FloatBuffer vertexBuffer;
     private final float[] vertexArray = {
             -0.5f, -0.5f, 0.0f,
@@ -139,10 +137,10 @@ public class SquareTexture extends Shape {
         GLES20.glUniform1i(textureHandle, 0);
 
         int changeTypeHandle = GLES20.glGetUniformLocation(mProgram, "vChangeType");
-        GLES20.glUniform1i(changeTypeHandle, filter.getType());
+        GLES20.glUniform1i(changeTypeHandle, Configuration.textureFilter.getType());
 
         int changeColorHandle = GLES20.glGetUniformLocation(mProgram, "vChangeColor");
-        GLES20.glUniform3fv(changeColorHandle, 1, filter.data(), 0);
+        GLES20.glUniform3fv(changeColorHandle, 1, Configuration.textureFilter.data(), 0);
 
         int aspectRatioHandle = GLES20.glGetUniformLocation(mProgram, "vAspectRatio");
         GLES20.glUniform1f(aspectRatioHandle, mAspectRatio);
